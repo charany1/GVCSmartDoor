@@ -1,7 +1,11 @@
 package me.yogeshwardan.gvcsmartdoor;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,9 +26,13 @@ public class Doors extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         applyLayoutByEmailVerification();
 
     }
+
+
+
 
     @Override
     public void onStart(){
@@ -117,5 +125,7 @@ public class Doors extends AppCompatActivity {
             setContentView(R.layout.activity_doors_mail_confirmed);
         }
     }
+
+
 
 }

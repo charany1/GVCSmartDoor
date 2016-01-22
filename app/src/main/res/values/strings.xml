@@ -25,4 +25,7 @@
     <string name="add_door">Add Door</string>
     <string name="door_key_confirm_hint">Confirm Door Key again</string>
     <string name="wifi_password_confirm_hint">Confirm Wifi Password again</string>
+    <string name="title_activity_no_internet_connection">NoInternetConnection</string>
+    <string name="title_activity_no_internect_connection">NoInternectConnection</string>
+    <string name="no_connection">No Internet Connection !</string>
 </resources>

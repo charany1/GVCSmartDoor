@@ -55,6 +55,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="me.yogeshwardan.gvcsmartdoor.Doors" />
         </activity>
+        <activity
+            android:name=".NoInternectConnection"
+            android:label="@string/title_activity_no_internect_connection" >
+        </activity>
+        <activity
+            android:name=".NoInternetConnection"
+            android:label="@string/title_activity_no_internet_connection" >
+        </activity>
     </application>
 
 </manifest>

@@ -62,6 +62,10 @@ public class DoorAddition extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_door_addition);
 
+
+
+
+
         //Cancel button takes back to Doors Activity
         Button cancelDoorAddition = (Button)findViewById(R.id.cancel_add_door);
         cancelDoorAddition.setOnClickListener(new View.OnClickListener() {
@@ -77,12 +81,37 @@ public class DoorAddition extends AppCompatActivity {
         addDoor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //Assign EditTexts and values entered here
+                //get deviceId entered
+                deviceIdEditText = (EditText)findViewById(R.id.deviceId);
+                deviceId =  deviceIdEditText.getText().toString().trim();
+                Toast.makeText(DoorAddition.this,deviceId, Toast.LENGTH_SHORT).show();
+
+                doorNameEditText = (EditText)findViewById(R.id.door_name);
+                doorName = doorNameEditText.getText().toString().trim();
+
+                doorKeyEditText = (EditText)findViewById(R.id.door_key);
+                doorKey = doorKeyEditText.getText().toString().trim();
+
+                doorKeyConfirmEditText = (EditText)findViewById(R.id.door_key_confirm);
+                doorKeyConfirm = doorKeyConfirmEditText.getText().toString().trim();
+
+                wifiSSIDEditText = (EditText)findViewById(R.id.wifi_ssid);
+                wifiSSID = wifiSSIDEditText.getText().toString().trim();
+
+                wifiPasswordEditText = (EditText)findViewById(R.id.wifi_password);
+                wifiPassword = wifiPasswordEditText.getText().toString().trim();
+
+                wifiPasswordConfirmEditText = (EditText)findViewById(R.id.wifi_password_confirm);
+                wifiPasswordConfirm = wifiPasswordConfirmEditText.getText().toString().trim();
+
                 //any errors : don't do anything
-                if(anyErrorsInForm()){
+                if(anyErrorsInForm() ){
                     return;
                 }
 
-                addDeviceAndUpdateDeviceInUse();
+                checkDeviceExistAndAddDevice();
 
 
             }
@@ -90,55 +119,17 @@ public class DoorAddition extends AppCompatActivity {
 
     }
 
-    private void addDeviceAndUpdateDeviceInUse(){
-        /*
-                Should be called only after form validation gives no error.
-                Add device to currentUser's devices
-                by :
-                1.set device's inUse = true;
-                2.creating a record entry in UserDeviceRelation with following fields:
-                    userEmail , deviceId, doorName , doorKey , wifiSSID , wifiPassword
-
-                */
-
-        ParseObject userDeviceRecord = new ParseObject("UserDeviceRelation");
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        //check that current user is not logged out
-        if(currentUser!=null){
-
-            userDeviceRecord.put("userEmail",currentUser.getEmail());
-
-            deviceId = deviceIdEditText.getText().toString().trim();
-            userDeviceRecord.put("deviceId",deviceId);
-
-            doorName = doorNameEditText.getText().toString().trim();
-            userDeviceRecord.put("doorName",doorName);
-
-            doorKey = doorKeyEditText.getText().toString().trim();
-            userDeviceRecord.put("doorKey",doorName);
-
-            wifiSSID = wifiSSIDEditText.getText().toString().trim();
-            userDeviceRecord.put("wifiSSID",wifiSSID);
-
-            wifiPassword = wifiPasswordEditText.getText().toString().trim();
-            userDeviceRecord.put("wifiPassword", wifiPassword);
-
-            //create a row in UserDevice table and update device's inUse = true;
-
-            Toast.makeText(DoorAddition.this, "saving userDevice record", Toast.LENGTH_SHORT).show();
-            userDeviceRecord.saveInBackground();
-            device.put("inUse", true);
-            Toast.makeText(DoorAddition.this, "updating Device inUse", Toast.LENGTH_SHORT).show();
-            device.saveInBackground();
 
 
+    private boolean checkEmptyField(int fieldId) {
 
-
-        }
-        else {
-            Toast.makeText(DoorAddition.this, "Current User : Null!", Toast.LENGTH_SHORT).show();
+        EditText fieldEditText = (EditText)findViewById(fieldId);
+        String fieldString = fieldEditText.getText().toString();
+        if(fieldString.toString().trim().equals("")) {
+            return true;
         }
 
+        return false;
     }
 
     private boolean anyErrorsInForm(){
@@ -149,9 +140,9 @@ public class DoorAddition extends AppCompatActivity {
         * 2.Check for Matches
         *   2.1 Door Key Matches
         *   2.2 WifiPassword Matches
-        * 3.Device existence check
-        * 4.Todo: Wifi information validation check : check that wifi credentials are correct.
-        *
+        * 3.Todo: Wifi information validation check : check that wifi credentials are correct.
+        * Device validation check : i.e. A device with entered Device Id exists and it's
+         * inUse = false , is checked after this function in checkDeviceExist().
         * */
 
         boolean isThereAnyError = false ;
@@ -233,49 +224,25 @@ public class DoorAddition extends AppCompatActivity {
             return isThereAnyError;
         }
 
-        // Device Id is not empty , check for existence in Parse Device class
-        boolean doesDeviceExist = checkDeviceExist();
-        //Informative Toast is shown in checkDeviceExist() method , so ,don't show it again
-        //here.
-        if(doesDeviceExist == false){
-            toaster("doesDeviceExist == false");
-            isThereAnyError = true;
-            return isThereAnyError;
-        }
-
 
 
         return isThereAnyError;
 
     }
 
-    private void toaster(String cause){
-        Toast.makeText(DoorAddition.this, cause, Toast.LENGTH_SHORT).show();
-    }
-
-    private boolean checkEmptyField(int fieldId) {
-
-        EditText fieldEditText = (EditText)findViewById(fieldId);
-        String fieldString = fieldEditText.getText().toString();
-        if(fieldString.toString().trim().equals("")) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean checkDeviceExist() {
-        /*check in devices that device exists and device's inUse == false
-
+    private void checkDeviceExistAndAddDevice() {
+        /**
+         *check in devices that device exists and device's inUse == false
+         * in GetCallback.done() , if no ParseException in received i.e e==null
+         * then perform . addDeviceAndUpdateDeviceInUse()
+         *
          */
 
-        //get deviceId entered
-        deviceIdEditText = (EditText)findViewById(R.id.deviceId);
-        deviceId =  deviceIdEditText.getText().toString().trim();
 
         //Query parse for matching device record in Device
         ParseQuery<ParseObject> deviceQuery = ParseQuery.getQuery("Device");
         deviceQuery.whereEqualTo("deviceId", deviceId);
+        Toast.makeText(DoorAddition.this, deviceId, Toast.LENGTH_SHORT).show();
         deviceQuery.getFirstInBackground(new GetCallback<ParseObject>() {
             @Override
             public void done(ParseObject object, ParseException e) {
@@ -302,7 +269,7 @@ public class DoorAddition extends AppCompatActivity {
                             //device exist and it's inUse == false
                             deviceExist = true;
                             Toast.makeText(DoorAddition.this, "Device exists and inUse==false;", Toast.LENGTH_SHORT).show();
-
+                            addDeviceAndUpdateDeviceInUse();
                         }
                     }
 
@@ -310,27 +277,70 @@ public class DoorAddition extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void addDeviceAndUpdateDeviceInUse(){
+        /*
+                Should be called only after form validation gives no error.
+                Add device to currentUser's devices
+                by :
+                1.set device's inUse = true;
+                2.creating a record entry in UserDeviceRelation with following fields:
+                    userEmail , deviceId, doorName , doorKey , wifiSSID , wifiPassword
+
+                */
+
+        ParseObject userDeviceRecord = new ParseObject("UserDeviceRelation");
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        //check that current user is not logged out
+        if(currentUser!=null){
+
+            userDeviceRecord.put("userEmail",currentUser.getEmail());
+            userDeviceRecord.put("deviceId",deviceId);
 
 
+            userDeviceRecord.put("doorName",doorName);
+
+            userDeviceRecord.put("doorKey",doorName);
+            userDeviceRecord.put("wifiSSID",wifiSSID);
+
+            userDeviceRecord.put("wifiPassword", wifiPassword);
+
+            //create a row in UserDevice table and update device's inUse = true;
+
+            Toast.makeText(DoorAddition.this, "saving userDevice record", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "saving userDevice record");
+            userDeviceRecord.saveInBackground();
+            device.put("inUse", true);
+            Log.d(TAG, "updating Device inUse");
+            Toast.makeText(DoorAddition.this, "updating Device inUse", Toast.LENGTH_SHORT).show();
+            device.saveInBackground();
+
+
+
+
+        }
+        else {
+            Toast.makeText(DoorAddition.this, "Current User : Null!", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
+    private void toaster(String cause){
+        Toast.makeText(DoorAddition.this, cause, Toast.LENGTH_SHORT).show();
+    }
+
+
+
+
+
     private boolean checkWifiPasswordsMatch() {
-        wifiPasswordEditText = (EditText)findViewById(R.id.wifi_password);
-        wifiPasswordConfirmEditText = (EditText)findViewById(R.id.wifi_password_confirm);
-        wifiPassword = wifiPasswordEditText.getText().toString().trim();
-        wifiPasswordConfirm = wifiPasswordConfirmEditText.getText().toString().trim();
         return wifiPassword.equals(wifiPasswordConfirm);
 
     }
 
     private boolean checkDoorKeysMatch() {
-        doorKeyEditText = (EditText)findViewById(R.id.door_key);
-        doorKeyConfirmEditText = (EditText)findViewById(R.id.door_key_confirm);
-        doorKey = doorKeyEditText.getText().toString().trim();
-        doorKeyConfirm = doorKeyConfirmEditText.getText().toString().trim();
         return doorKey.equals(doorKeyConfirm);
-
     }
 
 
