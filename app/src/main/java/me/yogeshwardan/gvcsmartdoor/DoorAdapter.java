@@ -1,5 +1,6 @@
 package me.yogeshwardan.gvcsmartdoor;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,12 +47,20 @@ public class DoorAdapter extends ParseQueryAdapter<ParseObject> {
         unlockButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "Unlock pressed!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), "Unlock pressed!", Toast.LENGTH_SHORT).show();
                 /*
                 * 1.connect
                 * 2.publish
                 * 3.disconnect or wait until you receive on subscribed topic
                 * */
+                //Todo:Add progressDialog .
+
+                MqttTasks mqttTasks = new MqttTasks(getContext(),v);
+                mqttTasks.connectPublishAndSubscribe();
+
+
+
+
             }
         });
 
@@ -61,4 +70,7 @@ public class DoorAdapter extends ParseQueryAdapter<ParseObject> {
 
         return v;
     }
+
+
+
 }
