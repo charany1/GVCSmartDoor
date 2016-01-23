@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.parse.ParseException;
@@ -19,6 +20,9 @@ import com.parse.ParseUser;
 import com.parse.ui.ParseLoginDispatchActivity;
 
 public class Doors extends AppCompatActivity {
+
+    private DoorAdapter doorAdapter;
+    private ListView listView;
 
     private  final String TAG = getClass().getSimpleName();
     private final ParseUser currentUser = ParseUser.getCurrentUser();
@@ -123,7 +127,16 @@ public class Doors extends AppCompatActivity {
         else
         {
             setContentView(R.layout.activity_doors_mail_confirmed);
+            doorAdapter = new DoorAdapter(this);
+
+
+            listView = (ListView)findViewById(R.id.list);
+            listView.setAdapter(doorAdapter);
+            doorAdapter.loadObjects();
+
         }
+
+
     }
 
 

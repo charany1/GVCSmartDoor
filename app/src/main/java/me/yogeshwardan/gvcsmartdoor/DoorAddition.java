@@ -18,13 +18,14 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.List;
 
 public class DoorAddition extends AppCompatActivity {
 
     private final String TAG = getClass().getSimpleName();
-    boolean deviceExist = false;
+
 
     /*device will contain result from ParseObject returned on ParseQuery for validation
       this way we won't need to query parse again while updating inUse = true;
@@ -71,9 +72,7 @@ public class DoorAddition extends AppCompatActivity {
         cancelDoorAddition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent launchDoors = new Intent(getApplicationContext(),Doors.class);
-                launchDoors.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(launchDoors);
+               goToDoors();
             }
         });
 
@@ -119,6 +118,11 @@ public class DoorAddition extends AppCompatActivity {
 
     }
 
+    private void goToDoors() {
+        Intent launchDoors = new Intent(getApplicationContext(),Doors.class);
+        launchDoors.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(launchDoors);
+    }
 
 
     private boolean checkEmptyField(int fieldId) {
@@ -253,7 +257,7 @@ public class DoorAddition extends AppCompatActivity {
                     Toast.makeText(DoorAddition.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
                         Toast.makeText(DoorAddition.this, "Invalid Device Id!", Toast.LENGTH_SHORT).show();
-                        deviceExist = false;
+
                         return;
                     }
 
@@ -264,10 +268,10 @@ public class DoorAddition extends AppCompatActivity {
                         if (device.getBoolean("inUse") == true) {
                             Toast.makeText(DoorAddition.this, "Device already in use!", Toast.LENGTH_SHORT).show();
                             //device exist but is already added by user
-                            deviceExist = false;
+
                         } else {
                             //device exist and it's inUse == false
-                            deviceExist = true;
+
                             Toast.makeText(DoorAddition.this, "Device exists and inUse==false;", Toast.LENGTH_SHORT).show();
                             addDeviceAndUpdateDeviceInUse();
                         }
@@ -310,7 +314,12 @@ public class DoorAddition extends AppCompatActivity {
 
             Toast.makeText(DoorAddition.this, "saving userDevice record", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "saving userDevice record");
-            userDeviceRecord.saveInBackground();
+            userDeviceRecord.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    goToDoors();
+                }
+            });
             device.put("inUse", true);
             Log.d(TAG, "updating Device inUse");
             Toast.makeText(DoorAddition.this, "updating Device inUse", Toast.LENGTH_SHORT).show();

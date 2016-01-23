@@ -16,11 +16,16 @@ public class NoInternetConnection extends AppCompatActivity {
         setContentView(R.layout.activity_no_internet_connection);
 
         //show no internet connection dialog
-        DialogFragment noInternetAlertDialog = NoInternetAlertDialog.newInstance();
-        noInternetAlertDialog.show(getSupportFragmentManager(), "dialog");
+        showDialog();
 
     }
 
+    public void showDialog(){
+        DialogFragment noInternetAlertDialog = NoInternetAlertDialog.newInstance();
+        noInternetAlertDialog.setCancelable(false);
+        noInternetAlertDialog.show(getSupportFragmentManager(), "dialog");
+
+    }
 
 
     @Override

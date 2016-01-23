@@ -25,7 +25,6 @@ public class NoInternetAlertDialog extends DialogFragment{
         return new AlertDialog.Builder(getActivity())
                 .setTitle("Internet Connection Required!")
                 .setMessage("Internet connection is required,please connect and try again!")
-                .setCancelable(false)
                 .setNeutralButton("Retry", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -36,6 +35,7 @@ public class NoInternetAlertDialog extends DialogFragment{
                 .create();
 
     }
+
 
 
 }
